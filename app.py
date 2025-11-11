@@ -117,7 +117,7 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                     st.info(f"Using date column: {date_col}")
                     
                     # Convert to datetime
-                    all_invoices[date_col] = pd.to_datetime(all_invoices[date_col], errors='coerce')
+                    all_invoices[date_col] = pd.to_datetime(all_invoices[date_col], format='mixed', dayfirst=True)
                     
                     # Split invoices based on cutoff date
                     resa = all_invoices[all_invoices[date_col] < pd.Timestamp(cutoff_date)]
@@ -128,7 +128,7 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                     st.warning("No date column found in invoice file. Please specify the date column name.")
                     date_col_name = st.text_input("Enter the exact date column name:")
                     if date_col_name and date_col_name in all_invoices.columns:
-                        all_invoices[date_col_name] = pd.to_datetime(all_invoices[date_col_name], errors='coerce')
+                        all_invoices[date_col_name] = pd.to_datetime(all_invoices[date_col_name], format='mixed', dayfirst=True)
                         resa = all_invoices[all_invoices[date_col_name] < pd.Timestamp(cutoff_date)]
                         invoices = all_invoices[all_invoices[date_col_name] >= pd.Timestamp(cutoff_date)]
                     else:
