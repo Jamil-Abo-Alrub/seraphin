@@ -105,7 +105,7 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                 
                 # Read the single invoice file
                 st.info(f"Reading invoice file and splitting by date: {cutoff_date}")
-                all_invoices = pd.read_csv(invoice_file, sep=separator_option, encoding=encoding_option)
+                all_invoices = pd.read_csv(invoice_file, sep=separator_option, encoding=encoding_option, on_bad_lines='skip')
                 progress_bar.progress(20)
                 
                 # Check if there's a date column in the invoice file
@@ -142,7 +142,7 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                 
                 # Read Boost file
                 st.info("Reading Boost file...")
-                df = pd.read_csv(boost_file, sep=separator_option, encoding=encoding_option)
+                df = pd.read_csv(boost_file, sep=separator_option, encoding=encoding_option, on_bad_lines='skip')
                 columns_to_keep = ['Email', 'Prenom_Nom']
                 
                 # Check if columns exist
@@ -162,7 +162,7 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                 
                 # Read Clients file
                 st.info("Reading Clients file...")
-                clients = pd.read_csv(clients_file, sep=separator_option, encoding=encoding_option)
+                clients = pd.read_csv(clients_file, sep=separator_option, encoding=encoding_option, on_bad_lines='skip')
                 
                 # Check for Email column in clients
                 if 'Email' not in clients.columns:
