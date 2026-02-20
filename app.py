@@ -142,7 +142,7 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                 
                 # Read Boost file
                 st.info("Reading Boost file...")
-                df = pd.read_csv(boost_file, sep=separator_option, encoding=encoding_option)
+                df = pd.read_csv(boost_file, sep=',', encoding=encoding_option)
                 columns_to_keep = ['Email', 'Prenom_Nom']
                 
                 # Check if columns exist
@@ -317,4 +317,5 @@ with st.expander("📖 Instructions"):
 # Footer
 st.markdown("---")
 st.caption("Invoice Analysis Tool v1.0 | Built with Streamlit")
+
 
