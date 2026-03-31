@@ -70,29 +70,8 @@ with col2:
         help="File containing client summary information"
     )
     
-    # Date selector
-    st.markdown("### 📅 Select Cutoff Date")
-    cutoff_date = st.date_input(
-        "Choose the date to split invoices",
-        value=date(2024, 7, 1),
-        min_value=date(2020, 1, 1),
-        max_value=date(2025, 12, 31),
-        help="Invoices will be split into before and after this date"
-    )
+   
 
-# Add encoding options
-st.sidebar.header("⚙️ Settings")
-encoding_option = st.sidebar.selectbox(
-    "File Encoding",
-    ['latin-1', 'utf-8', 'iso-8859-1', 'cp1252'],
-    index=0
-)
-
-separator_option = st.sidebar.selectbox(
-    "CSV Separator",
-    [';', ',', '\t', '|'],
-    index=0
-)
 
 # Process button
 if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_file, boost_file, clients_file])):
@@ -104,45 +83,33 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                 progress_bar = st.progress(0)
                 
                 # Read the single invoice file
-                st.info(f"Reading invoice file and splitting by date: {cutoff_date}")
-                all_invoices = pd.read_csv(invoice_file, sep=separator_option, encoding=encoding_option)
+                # remove cutoff date from everything and split by date
+                
+                all_invoices = pd.read_csv(invoice_file, sep=';', encoding='latin-1')
                 progress_bar.progress(20)
                 
                 # Check if there's a date column in the invoice file
-                date_columns = [col for col in all_invoices.columns if 'date' in col.lower()]
                 
-                if date_columns:
+                if True:
                     # Use the first date column found
-                    date_col = date_columns[0]
+                    date_col = 'Date de création de la facture'
                     st.info(f"Using date column: {date_col}")
                     
                     # Convert to datetime
                     all_invoices[date_col] = pd.to_datetime(all_invoices[date_col], format='mixed', dayfirst=True)
                     
-                    # Split invoices based on cutoff date
-                    resa = all_invoices[all_invoices[date_col] < pd.Timestamp(cutoff_date)]
-                    invoices = all_invoices[all_invoices[date_col] >= pd.Timestamp(cutoff_date)]
+                   
+                    resa = all_invoices
+                    invoices = all_invoices
                     
-                    st.success(f"Split invoices: {len(resa)} before {cutoff_date}, {len(invoices)} after {cutoff_date}")
-                else:
-                    st.warning("No date column found in invoice file. Please specify the date column name.")
-                    date_col_name = st.text_input("Enter the exact date column name:")
-                    if date_col_name and date_col_name in all_invoices.columns:
-                        all_invoices[date_col_name] = pd.to_datetime(all_invoices[date_col_name], format='mixed', dayfirst=True)
-                        resa = all_invoices[all_invoices[date_col_name] < pd.Timestamp(cutoff_date)]
-                        invoices = all_invoices[all_invoices[date_col_name] >= pd.Timestamp(cutoff_date)]
-                    else:
-                        st.error("Date column not found or not specified. Using index-based splitting as fallback.")
-                        # Fallback: split by index (first half before, second half after)
-                        split_point = len(all_invoices) // 2
-                        resa = all_invoices.iloc[:split_point]
-                        invoices = all_invoices.iloc[split_point:]
+                 
+            
                 
                 progress_bar.progress(30)
                 
                 # Read Boost file
                 st.info("Reading Boost file...")
-                df = pd.read_csv(boost_file, sep=',', encoding=encoding_option)
+                df = pd.read_csv(boost_file, sep=";")
                 columns_to_keep = ['Email', 'Prenom_Nom']
                 
                 # Check if columns exist
@@ -162,7 +129,7 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                 
                 # Read Clients file
                 st.info("Reading Clients file...")
-                clients = pd.read_csv(clients_file, sep=separator_option, encoding=encoding_option)
+                clients = pd.read_csv(clients_file, sep=";", encoding="latin-1")
                 
                 # Check for Email column in clients
                 if 'Email' not in clients.columns:
@@ -187,7 +154,7 @@ if st.button("🚀 Process Files", type="primary", disabled=not all([invoice_fil
                 
                 # Remove clients_in_resa from clients (clients with no activity before cutoff)
                 clients = clients[~clients['Numéro du client'].isin(clients_in_resa['Numéro du client'])]
-                st.success(f"Found {len(clients)} clients with activity only after {cutoff_date}")
+                st.success(f"Found {len(clients)} clients with activity only after ")
                 progress_bar.progress(60)
                 
                 # Filter invoices for non-zero amounts
@@ -279,7 +246,7 @@ if st.session_state.processed and st.session_state.result_df is not None:
     st.download_button(
         label="📥 Download Results as CSV",
         data=csv,
-        file_name=f'invoice_analysis_{cutoff_date}.csv',
+        file_name=f'invoice_analysis.csv',
         mime='text/csv'
     )
     
@@ -317,5 +284,3 @@ with st.expander("📖 Instructions"):
 # Footer
 st.markdown("---")
 st.caption("Invoice Analysis Tool v1.0 | Built with Streamlit")
-
-
